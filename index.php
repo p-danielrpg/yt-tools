@@ -1,3 +1,5 @@
+<?php
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -24,7 +26,7 @@
     <!-- <video tabindex="-1" class="video-stream html5-main-video" controlslist="nodownload" style="width: 541px; height: 304px; left: 0px; top: 0px;" src="blob:https://www.youtube.com/1aec7836-9557-43e4-b901-b0c4c7b5e0fb"></video>
     <video tabindex="-1" class="video-stream html5-main-video" controlslist="nodownload" style="width: 542px; height: 305px; left: 0px; top: 0px;" src="blob:https://www.youtube.com/c2617c18-b0aa-43d0-976b-432ea05195d3"></video> -->
 <script>
-
+console.log("trying this out");
 console.log(process.version);
 </script>
 

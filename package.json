@@ -1,0 +1,26 @@
+{
+  "name": "testapp",
+  "version": "0.0.2",
+  "description": "no descr",
+  "main": "index.js",
+  "scripts": {
+    "test": "run test",
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/p-danielrpg/yt-tools.git"
+  },
+  "keywords": [
+    "testapp"
+  ],
+  "author": "PDaniel",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/p-danielrpg/yt-tools/issues"
+  },
+  "homepage": "https://github.com/p-danielrpg/yt-tools#readme",
+  "dependencies": {
+    "express": "^4.17.2"
+  }
+}

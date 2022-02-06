@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require("body-parser");
-const ytdl = require("youtube-dl.js");
+const fs = require('fs');
+const ytdl = require('ytdl-core');
 const app = express();
  
 app.use(express.static(__dirname));
@@ -18,25 +19,15 @@ app.get('/', (req, res) => {
 
 app.post("/", (req, res) => {
   var subName = req.body.email;
+  // download youtube video
+  ytdl(subName)
+  .pipe(fs.createWriteStream('video2.mp3'));
+  console.log(ytdl.getInfo(subName));
  res.send("Hello " + subName + ", Thank you for subcribing. ");
 });
 
 
 
-// ------------------
-// Get youtube info
-let url = "https://www.youtube.com/watch?v=xEbNMPCYlOM",
-    filename = `${new Date().getTime()}.%(ext)s`,
-    args = ["-o", filename, "-x", "--audio-format=mp3", "--restrict-filenames", "--external-downloader=ffmpeg", "--audio-quality=96k"];
- 
-ytdl(url, args)
-  .then(data => {
-    console.log(data);
-  })
-  .catch(err => {
-    console.error(err);
-});
-	
 
 
 

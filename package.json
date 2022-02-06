@@ -23,6 +23,6 @@
   "dependencies": {
     "body-parser": "^1.19.1",
     "express": "^4.17.2",
-    "youtube-dl.js": "^1.1.1"
+    "ytdl-core": "^4.10.1"
   }
 }

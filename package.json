@@ -21,6 +21,8 @@
   },
   "homepage": "https://github.com/p-danielrpg/yt-tools#readme",
   "dependencies": {
-    "express": "^4.17.2"
+    "body-parser": "^1.19.1",
+    "express": "^4.17.2",
+    "youtube-dl.js": "^1.1.1"
   }
 }

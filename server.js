@@ -19,11 +19,22 @@ app.get('/', (req, res) => {
 
 app.post("/", (req, res) => {
   var subName = req.body.email;
+//   res.set('content-disposition', `attachment; filename="${ req.body.subName }"`);
   // download youtube video
-  ytdl(subName)
-  .pipe(fs.createWriteStream('video2.mp3'));
-  console.log(ytdl.getInfo(subName));
- res.send("Hello " + subName + ", Thank you for subcribing. ");
+  let download = ytdl(subName).pipe(fs.createWriteStream('video2.mp3'));
+  download.on("finish", ()=> {
+
+    // res.writeHead(200, {
+    //     "Content-Type": "audio/mpeg",
+    //     "Content-Disposition" : "attachment; filename=" + 
+    //     "audioNow.mp3"   });
+    //"Content-Type": "audio/mpeg";
+    res.download('video2.mp3', 'song.mp3');
+    console.log("finished stream");
+  })
+
+  //console.log(download);
+ //res.send("Hello " + subName + ", Thank you for subcribing. ");
 });
 
 

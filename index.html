@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.socket.io/4.4.1/socket.io.min.js" integrity="sha384-fKnu0iswBIqkjxrhQCTZ7qlLHOFEgNkRmK2vaO/LbTZSXdJfAu6ewRBdwHPhBo/H" crossorigin="anonymous"></script>
+  
   <link rel="stylesheet" href="app.css">
   <title>Document</title>
 </head>
@@ -12,11 +14,47 @@
     THIS SEEMS TO WORK
   </h1>
 
-<form method="post">
+<form method="post" action="#">
   <input type="text" name="email" id="mail">
-  <input type="submit" value="Send Now" class="btn">
-  <input type="file" nwsaveas="filename.txt" />
+  <input type="submit" value="Send Now" class="btn" onclick="buttonPressed()">
+  <!-- <input type="file" nwsaveas="filename.txt" /> -->
 </form>
+
+<p id="infoText">
+
+</p>
+
+<script>
+//const io = require("socket.io-client");
+const socket = io();
+// const socket = io("localhost",{
+//   withCredentials: true,
+//   extraHeaders: {
+//     "my-custom-header": "abcd"
+//   }
+// });
+// client-side
+socket.on("connect", () => {
+  console.log(socket.id); // x8WIv7-mJelg7on_ALbx
+});
+
+socket.on("sendText", (arg) => {
+  console.log("sendText" , arg);
+ document.getElementById("infoText").innerHTML = arg;
+})
+
+
+function buttonPressed() {
+  socket.emit("downloadPressed", document.getElementById("mail").value, (response) => {
+    console.log("it got response");
+    document.getElementById("infoText").innerHTML = response.text;
+  });
+}
+
+
+
+</script>
+
 
 </body>
 </html>

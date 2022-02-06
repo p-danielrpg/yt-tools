@@ -2,13 +2,59 @@ const express = require('express');
 const bodyParser = require("body-parser");
 const fs = require('fs');
 const ytdl = require('ytdl-core');
+//var appHttp = require('http').createServer(app);  
+const { createServer } = require("http");
+//var io = require('socket.io').listen(appHttp);
+const { Server } = require("socket.io");
+const { callbackify } = require('util');
 const app = express();
- 
+const httpServer = createServer(app);  
+const io = new Server(httpServer, {
+    cors: {
+        origin: "https://localhost",
+        methods: ["GET", "POST"],
+        allowedHeaders: ["my-custom-header"],
+        credentials: true
+      }
+});
+
+
+// Start the server
+const PORT = process.env.PORT || 8080;
+
+// Let's make the CSS work by making a static page 
 app.use(express.static(__dirname));
 
-// get our app to use body parser 
+// Use the body parser to our app 
 app.use(bodyParser.urlencoded({ extended: true }))
 
+
+// Listen for port and connect to socket
+io.on("connection", (socket) => {
+  //console.log(socket.id); // x8WIv7-mJelg7on_ALbx
+    socket.on("downloadPressed", (arg, callback) => {
+        console.log("pressed " + arg);
+        callback({
+            text: "FINISHED HERE"
+        });
+        //sendBack(arg);
+        //socket.emit("sendText", "testt test");
+    })
+
+    
+    // function sendBack(argu) {
+    //     console.log("it was sent back");
+    //     io.sockets.emit("sendText", argu);
+    // }   
+
+});
+
+
+
+
+httpServer.listen(8080);
+
+// Get the request to render the INDEX.HTML
 app.get('/', (req, res) => {
 //   res
 //     .status(200)
@@ -53,9 +99,8 @@ app.post("/", (req, res) => {
 
 
 
-// Start the server
-const PORT = process.env.PORT || 8080;
-app.listen(PORT, () => {
-  console.log(`App listening on port ${PORT}`);
-  console.log('Press Ctrl+C to quit.');
-});
+
+// app.listen(PORT, () => {
+//   console.log(`App listening on port ${PORT}`);
+//   console.log('Press Ctrl+C to quit.');
+// });

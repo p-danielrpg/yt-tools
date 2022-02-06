@@ -22,14 +22,25 @@ app.post("/", (req, res) => {
 //   res.set('content-disposition', `attachment; filename="${ req.body.subName }"`);
   // download youtube video
   let download = ytdl(subName).pipe(fs.createWriteStream('video2.mp3'));
+  let videoInfo = ytdl.getInfo(subName);
+
   download.on("finish", ()=> {
+    let videoTitle = 0;
+    videoInfo.then(function(result) {
+        return result.videoDetails.title;
+       // videoTitle = result.videoDetails.title;
+    }).then(function(neww) {
+        videoTitle = neww;
+        res.download('video2.mp3', String(videoTitle)+".mp3");
+        
+
+    })
 
     // res.writeHead(200, {
     //     "Content-Type": "audio/mpeg",
     //     "Content-Disposition" : "attachment; filename=" + 
     //     "audioNow.mp3"   });
     //"Content-Type": "audio/mpeg";
-    res.download('video2.mp3', 'song.mp3');
     console.log("finished stream");
   })
 

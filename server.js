@@ -52,7 +52,7 @@ io.on("connection", (socket) => {
 
 
 
-httpServer.listen(8080);
+httpServer.listen(PORT);
 
 // Get the request to render the INDEX.HTML
 app.get('/', (req, res) => {

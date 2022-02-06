@@ -1,14 +1,17 @@
-var http = require('http'),
-    fs = require('fs');
-
-
-fs.readFile('./index.html', function (err, html) {
-    if (err) {
-        throw err; 
-    }       
-    http.createServer(function(request, response) {  
-        response.writeHeader(200, {"Content-Type": "text/html"});  
-        response.write(html);  
-        response.end();  
-    }).listen(8000);
+const express = require('express');
+const app = express();
+ 
+app.get('/', (req, res) => {
+//   res
+//     .status(200)
+//     .send('Hello server is running')
+//     .end();
+    res.sendFile(__dirname + "/index.html");
+});
+ 
+// Start the server
+const PORT = process.env.PORT || 8080;
+app.listen(PORT, () => {
+  console.log(`App listening on port ${PORT}`);
+  console.log('Press Ctrl+C to quit.');
 });

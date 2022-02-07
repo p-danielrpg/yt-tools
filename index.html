@@ -20,8 +20,11 @@
   <!-- <input type="file" nwsaveas="filename.txt" /> -->
 </form>
 
-<p id="infoText">
+<button onclick="videoQueue()">
+  Queue video
+</button>
 
+<p id="infoText">
 </p>
 
 <script>
@@ -44,11 +47,22 @@ socket.on("sendText", (arg) => {
 })
 
 
+function videoQueue() {
+  socket.emit("videoQue", document.getElementById("mail").value);
+}
+
+
 function buttonPressed() {
   socket.emit("downloadPressed", document.getElementById("mail").value, (response) => {
     console.log("it got response");
     document.getElementById("infoText").innerHTML = response.text;
   });
+
+  socket.emit("update item", "1", { name: "updated" }, (response) => {
+  console.log(response.status); // ok
+  });  
+
+
 }
 
 

@@ -11,61 +11,62 @@
 </head>
 <body>
   <h1>
-    THIS SEEMS TO WORK
+    Poor man's yt downloader
   </h1>
 
 <form method="post" action="#">
   <input type="text" name="email" id="mail">
-  <input type="submit" value="Send Now" class="btn" onclick="buttonPressed()">
+  <input id="sendPost" type="submit" value="Download" class="btn" onclick="buttonPressed()">
+  <div class="loader" id="loading"></div>
   <!-- <input type="file" nwsaveas="filename.txt" /> -->
 </form>
 
 <button onclick="videoQueue()">
-  Queue video
+  Search Video
 </button>
 
-<p id="infoText">
-</p>
+<p id="infoText"></p>
+
+
 
 <script>
-//const io = require("socket.io-client");
-const socket = io();
-// const socket = io("localhost",{
-//   withCredentials: true,
-//   extraHeaders: {
-//     "my-custom-header": "abcd"
-//   }
-// });
-// client-side
-socket.on("connect", () => {
-  console.log(socket.id); // x8WIv7-mJelg7on_ALbx
-});
 
-socket.on("sendText", (arg) => {
-  console.log("sendText" , arg);
- document.getElementById("infoText").innerHTML = arg;
-})
+  let videosArr = [];
+  let text = document.getElementById("mail").value;
 
-
-function videoQueue() {
-  socket.emit("videoQue", document.getElementById("mail").value);
-}
-
-
-function buttonPressed() {
-  socket.emit("downloadPressed", document.getElementById("mail").value, (response) => {
-    console.log("it got response");
-    document.getElementById("infoText").innerHTML = response.text;
+  const socket = io();
+  // client-side
+  socket.on("connect", () => {
+    console.log(socket.id); // x8WIv7-mJelg7on_ALbx
   });
 
-  socket.emit("update item", "1", { name: "updated" }, (response) => {
-  console.log(response.status); // ok
-  });  
+  // Receive the the message from the server
+  socket.on("sendText", (arg) => {
+    console.log("sendText" , arg);
+    document.getElementById("infoText").innerHTML = arg;
+    document.getElementById("sendPost").style.visibility = 'visible';
+  })
 
 
-}
+  // On button VIDEO QUEUE (no submit is made)
+  function videoQueue() {
+    if (document.getElementById("mail").value != "") {
+      videosArr.push(document.getElementById("mail").value);
+      console.log(videosArr);
+    }
+    socket.emit("videoQue", document.getElementById("mail").value);
+  }
 
-
+  // on button SUBMIT FORM
+  function buttonPressed() {
+    document.getElementById("sendPost").style.visibility = 'hidden';
+    document.getElementById("loading").style.visibility = 'visible';
+    socket.emit("downloadPressed", document.getElementById("mail").value, (response) => {
+      console.log("it got response");
+      document.getElementById("infoText").innerHTML = response.text;
+    });
+    //document.getElementById("sendPost").disabled = true;
+  }
 
 </script>
 

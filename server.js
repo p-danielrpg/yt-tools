@@ -36,37 +36,20 @@ io.on("connection", (socket) => {
         callback({
             text: "FINISHED HERE"
         });
-        //sendBack(arg);
-        //socket.emit("sendText", "testt test");
     })
 
-  
-    
-    socket.on("update item", (arg1, arg2, callback) => {
-      console.log(arg1); // 1
-      console.log(arg2); // { name: "updated" }
-      callback({
-        status: "ok"
-      });
-    });   
+
 
     socket.on("videoQue", (arg) => {
       let download = ytdl(arg).pipe(fs.createWriteStream('video2.mp3'));
       let videoInfo = ytdl.getInfo(arg);
       videoInfo.then(function(result) {
         return result.videoDetails.title;
-        // videoTitle = result.videoDetails.title;
       }).then(function(neww) {
         videoTitle = neww;
         socket.emit("sendText", videoTitle)
       });
    })
-
-    // function sendBack(argu) {
-    //     console.log("it was sent back");
-    //     io.sockets.emit("sendText", argu);
-    // }   
-
 });
 
 
@@ -77,10 +60,6 @@ io.on("disconnect", function () {
 
 // Get the request to render the INDEX.HTML
 app.get('/', (req, res) => {
-  //   res
-  //     .status(200)
-  //     .send('Hello server is running')
-  //     .end();
   res.render(__dirname + "/index");
 });
 
@@ -88,7 +67,6 @@ app.get('/', (req, res) => {
 
 app.post("/", (req, res) => {
   var subName = req.body.email;
-  //   res.set('content-disposition', `attachment; filename="${ req.body.subName }"`);
   // download youtube video
   let download = ytdl(subName).pipe(fs.createWriteStream('video2.mp3'));
   let videoInfo = ytdl.getInfo(subName);
@@ -97,30 +75,15 @@ app.post("/", (req, res) => {
     let videoTitle = 0;
     videoInfo.then(function(result) {
       return result.videoDetails.title;
-      // videoTitle = result.videoDetails.title;
     }).then(function(neww) {
       videoTitle = neww;
-      // res.render(__dirname + "/index", {
-      //   text
-      // });
       res.download('video2.mp3', String(videoTitle)+".mp3");
     
     })
-    
-    // res.writeHead(200, {
-      //     "Content-Type": "audio/mpeg",
-      //     "Content-Disposition" : "attachment; filename=" + 
-      //     "audioNow.mp3"   });
-      //"Content-Type": "audio/mpeg";
+
       console.log("finished stream");
     })
-    
-    //console.log(download);
-    //res.send("Hello " + subName + ", Thank you for subcribing. ");
   });
-  
-  
-  
   
   
   

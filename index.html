@@ -1,75 +1,144 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="https://cdn.socket.io/4.4.1/socket.io.min.js" integrity="sha384-fKnu0iswBIqkjxrhQCTZ7qlLHOFEgNkRmK2vaO/LbTZSXdJfAu6ewRBdwHPhBo/H" crossorigin="anonymous"></script>
-  
-  <link rel="stylesheet" href="app.css">
-  <title>Document</title>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <script src="https://cdn.socket.io/4.4.1/socket.io.min.js" integrity="sha384-fKnu0iswBIqkjxrhQCTZ7qlLHOFEgNkRmK2vaO/LbTZSXdJfAu6ewRBdwHPhBo/H" crossorigin="anonymous"></script>
+    
+    <link rel="stylesheet" href="app.css">
+    <title>Poor man's Youtube Downloader</title>
 </head>
 <body>
-  <h1>
-    Poor man's yt downloader
-  </h1>
+  <div class="container-fluid">
+    <div class="row justify-content-center">
+      <div class="mt-5 col-xl-12 col-md-12 col-sm-12 col-xs-5 w-75 main-panel">
+        <div class="header">
+          <h1 class="h1">
+            Poor Man's Youtube Downloader
+          </h1>
+        </div>
+        
+        <form id="ytForm" method="post" action="#">
+          <input class="form-control mx-lg-5" type="text" name="email" id="mail" placeholder="Insert Youtube link here"><br/>
+        </form>
+        
+        
+        <button type="button" id="queueButton" class= "btn btn-outline-primary" onclick="videoQueue()">
+          Search Video
+        </button>
+        <br/>
+        <br/>
+        <!-- <p id="infoText"></p> -->
 
-<form method="post" action="#">
-  <input type="text" name="email" id="mail">
-  <input id="sendPost" type="submit" value="Download" class="btn" onclick="buttonPressed()">
-  <div class="loader" id="loading"></div>
-  <!-- <input type="file" nwsaveas="filename.txt" /> -->
-</form>
+        <div class="card col-md-6 rounded-3 mb-3 mt-4 ytCard" id="ytCardId">
+          <iframe id="videoPlayer" src="" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+          <div class="card-body">
+            <h5 id="infoText">
+              This is just a test
+            </h5>
+            <p class="overflow-auto">Your searched Youtube video is ready to get dowlnoaded. Only MP3 format supported.</p>
+            <form>  
+              <input form="ytForm" id="sendPost" type="submit" value="Download" class="btn btn-primary" onclick="buttonPressed()"><br/>
+              <div id="loader" class="loader"></div>
+              <strong id="dl-Started">Download Started...</strong>
+            </form>
+            <button type="button" id="dl-Reload" class="btn btn-secondary" onClick="window.location.reload();">Reload?</button>
+            <!-- <button type="button" class="btn btn-primary">Download</button> -->
+          </div>
+        </div>
 
-<button onclick="videoQueue()">
-  Search Video
-</button>
-
-<p id="infoText"></p>
-
-
+      </div>
+  </div>
 
 <script>
-
   let videosArr = [];
   let text = document.getElementById("mail").value;
-
   const socket = io();
-  // client-side
-  socket.on("connect", () => {
-    console.log(socket.id); // x8WIv7-mJelg7on_ALbx
-  });
 
   // Receive the the message from the server
   socket.on("sendText", (arg) => {
     console.log("sendText" , arg);
-    document.getElementById("infoText").innerHTML = arg;
-    document.getElementById("sendPost").style.visibility = 'visible';
+    
+    document.getElementById("infoText").innerHTML = arg[0];
+    if (Number(arg[1]) < 600) {
+      document.getElementById("sendPost").style.display = 'inherit';
+      document.getElementById("ytCardId").style.display = 'inherit';
+      document.body.style.backgroundImage = "url('" + arg[2].url + "')"; 
+      
+
+      let videoUrl = removeList(document.getElementById("mail").value);
+      let splitted;
+
+      if (videoUrl.includes("youtu.be")) {
+         splitted = videoUrl.split("be/", 2);
+         document.getElementById("videoPlayer").src = "https://www.youtube.com/embed/" + splitted[1];
+      } else {
+        splitted = videoUrl.split("v=", 2);
+         document.getElementById("videoPlayer").src = "https://www.youtube.com/embed/" + splitted[1];
+         console.log("splitted is " + splitted[1]);
+      }
+      
+      
+    } else {
+      document.getElementById("ytCardId").style.display = 'none';
+      document.getElementById("sendPost").style.display = 'none';
+      console.log("stream was too big");
+    }
   })
+
 
 
   // On button VIDEO QUEUE (no submit is made)
   function videoQueue() {
-    if (document.getElementById("mail").value != "") {
-      videosArr.push(document.getElementById("mail").value);
-      console.log(videosArr);
+    let userLink = removeList(document.getElementById("mail").value);
+    if (userLink != "" && matchYoutubeUrl(userLink) !== false) {
+      videosArr.push(userLink);
+      socket.emit("videoQue", userLink);
+      console.log(userLink);
+    } else {
+      console.warn("Youtube link not valid")
     }
-    socket.emit("videoQue", document.getElementById("mail").value);
+    
   }
 
   // on button SUBMIT FORM
   function buttonPressed() {
-    document.getElementById("sendPost").style.visibility = 'hidden';
-    document.getElementById("loading").style.visibility = 'visible';
+    document.getElementById("ytCardId").style.display = 'inherit';
+    document.getElementById("sendPost").style.display = 'none';
+    document.getElementById("loader").style.display = 'inherit';
+    document.getElementById("queueButton").style.display = 'none';
     socket.emit("downloadPressed", document.getElementById("mail").value, (response) => {
-      console.log("it got response");
       document.getElementById("infoText").innerHTML = response.text;
     });
-    //document.getElementById("sendPost").disabled = true;
+    setTimeout(() => {
+      document.getElementById("loader").style.display = 'none';
+      document.getElementById("dl-Started").style.display = 'inherit';
+      document.getElementById("dl-Reload").style.display = 'inherit';
+    }, 6100)    
   }
 
-</script>
 
+  function matchYoutubeUrl(url) {
+    var p = /^(?:https?:\/\/)?(?:m\.|www\.)?(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))((\w|-){11})(?:\S+)?$/;
+    if(url.match(p)){
+        return url.match(p)[1];
+    }
+    return false;
+  }
+
+  function removeList (url) {
+    if (url.includes("&")) {
+        return url.split("&")[0];
+      }
+      else {
+        return url;
+      }
+  }
+
+
+</script>
 
 </body>
 </html>

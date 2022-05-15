@@ -1,10 +1,8 @@
 const express = require('express');
 const bodyParser = require("body-parser");
 const fs = require('fs');
-const ytdl = require('ytdl-core');
-//var appHttp = require('http').createServer(app);  
+const ytdl = require('ytdl-core'); 
 const { createServer } = require("http");
-//var io = require('socket.io').listen(appHttp);
 const { Server } = require("socket.io");
 const app = express();
 const httpServer = createServer(app);  
@@ -29,8 +27,9 @@ app.use(bodyParser.urlencoded({ extended: true }))
 
 
 // Listen for port and connect to socket
+let isDownloadFinished = false;
+let sockt = 0;
 io.on("connection", (socket) => {
-  //console.log(socket.id); // x8WIv7-mJelg7on_ALbx
     socket.on("downloadPressed", (arg, callback) => {
         console.log("pressed " + arg);
         callback({
@@ -38,18 +37,20 @@ io.on("connection", (socket) => {
         });
     })
 
-
+    sockt = socket.id;
 
     socket.on("videoQue", (arg) => {
-      let download = ytdl(arg).pipe(fs.createWriteStream('video2.mp3'));
       let videoInfo = ytdl.getInfo(arg);
       videoInfo.then(function(result) {
-        return result.videoDetails.title;
-      }).then(function(neww) {
-        videoTitle = neww;
+        return [result.videoDetails.title, result.videoDetails.lengthSeconds, result.videoDetails.thumbnails[result.videoDetails.thumbnails.length - 1]];
+      }).then(function(finalResult) {
+        videoTitle = finalResult;
         socket.emit("sendText", videoTitle)
       });
    })
+
+  
+
 });
 
 
@@ -70,26 +71,18 @@ app.post("/", (req, res) => {
   // download youtube video
   let download = ytdl(subName).pipe(fs.createWriteStream('video2.mp3'));
   let videoInfo = ytdl.getInfo(subName);
-  
   download.on("finish", ()=> {
     let videoTitle = 0;
     videoInfo.then(function(result) {
       return result.videoDetails.title;
     }).then(function(neww) {
       videoTitle = neww;
+      console.log("still loaded until here " + sockt);
       res.download('video2.mp3', String(videoTitle)+".mp3");
-    
     })
-
-      console.log("finished stream");
     })
   });
   
   
   
   httpServer.listen(PORT);
-
-// app.listen(PORT, () => {
-//   console.log(`App listening on port ${PORT}`);
-//   console.log('Press Ctrl+C to quit.');
-// });
